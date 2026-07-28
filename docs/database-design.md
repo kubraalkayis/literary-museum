@@ -334,3 +334,168 @@ Comments can currently be attached to Posts or Magazines.
 - A Comment cannot reference both a Post and a Magazine.
 - Empty comments are not allowed.
 - Authors may edit or delete their own Comments.
+---
+
+# 10. Magazine
+
+## Purpose
+
+Represents a collection of literary works published by either a User or the Editorial Team.
+
+Magazines are the primary feature of the Literary Museum platform.
+
+A magazine may contain works created by different authors, provided that the necessary permissions have been granted.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| owner | ForeignKey(User) | Creator or owner of the magazine |
+| title | CharField | Magazine title |
+| description | TextField | Magazine description |
+| cover_image | ImageField | Cover image |
+| type | ChoiceField | Magazine type |
+| visibility | ChoiceField | Visibility level |
+| status | ChoiceField | Publication status |
+| comments_enabled | BooleanField | Whether comments are allowed |
+| published_at | DateTimeField | Publication date |
+| created_at | DateTimeField | Creation time |
+| updated_at | DateTimeField | Last modification |
+
+## Magazine Types
+
+- User Magazine
+- Official Magazine
+
+## Status
+
+- Draft
+- Published
+- Archived
+
+## Visibility
+
+- Public
+- Followers Only
+- Private
+
+## Relationships
+
+- One User may own many Magazines.
+- One Magazine may contain many Posts through MagazineItem.
+- One Magazine may receive many Comments.
+
+## Business Rules
+
+- Every Magazine belongs to one User.
+- Official Magazines are managed by Editors.
+- Draft Magazines are not publicly visible.
+- Published Magazines may be archived later.
+
+---
+
+# 11. MagazineItem
+
+## Purpose
+
+Represents the relationship between Posts and Magazines.
+
+This entity allows a single Post to appear in multiple Magazines without duplicating content.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| magazine | ForeignKey(Magazine) | Target magazine |
+| post | ForeignKey(Post) | Included post |
+| added_by | ForeignKey(User) | User who added the post |
+| permission_request | ForeignKey(PermissionRequest, nullable) | Permission reference |
+| section_title | CharField | Optional section heading |
+| display_order | PositiveIntegerField | Order inside the magazine |
+| created_at | DateTimeField | Creation time |
+
+## Relationships
+
+- One Magazine contains many MagazineItems.
+- One Post may appear in many Magazines.
+
+## Business Rules
+
+- A Post cannot appear twice in the same Magazine.
+- Another creator's Post requires an accepted PermissionRequest.
+- A creator may freely add their own Posts.
+
+---
+
+# 12. Museum
+
+## Purpose
+
+Represents a curated exhibition of creative works.
+
+The museum feature complements the magazine system but is not the primary focus of the platform.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| owner | ForeignKey(User) | Museum owner |
+| title | CharField | Museum title |
+| description | TextField | Museum description |
+| cover_image | ImageField | Cover image |
+| type | ChoiceField | Museum type |
+| visibility | ChoiceField | Visibility |
+| created_at | DateTimeField | Creation time |
+| updated_at | DateTimeField | Last modification |
+
+## Museum Types
+
+- Personal Museum
+- Editorial Museum
+
+## Relationships
+
+- One User may own zero or one Personal Museum.
+- One Museum may contain many MuseumItems.
+
+## Business Rules
+
+- Creating a Personal Museum is optional.
+- A User may own at most one Personal Museum.
+- Personal Museums may be edited after creation.
+- Editorial Museums are managed by Editors.
+
+---
+
+# 13. MuseumItem
+
+## Purpose
+
+Represents the relationship between Posts and Museums.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| museum | ForeignKey(Museum) | Target museum |
+| post | ForeignKey(Post) | Displayed work |
+| added_by | ForeignKey(User) | Curator |
+| permission_request | ForeignKey(PermissionRequest, nullable) | Permission reference |
+| exhibition_note | TextField | Optional curator note |
+| display_order | PositiveIntegerField | Exhibition order |
+| created_at | DateTimeField | Creation time |
+
+## Relationships
+
+- One Museum contains many MuseumItems.
+- One Post may appear in many Museums.
+
+## Business Rules
+
+- A Post cannot appear twice in the same Museum.
+- Another creator's Post requires an accepted PermissionRequest.
+- A creator may freely exhibit their own Posts.
