@@ -141,3 +141,196 @@ This separation keeps authentication independent from profile customization.
 - Every User automatically receives a Profile.
 - Display names may be changed.
 - A Profile cannot exist without a User.
+---
+
+# 5. Post
+
+## Purpose
+
+Represents every piece of content published by a User.
+
+A Post is the core content entity of the platform and may represent literary works or other supported creative media.
+
+Posts may later appear inside personal magazines, official magazines, or museums.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| author | ForeignKey(User) | Creator of the post |
+| title | CharField | Post title |
+| body | TextField | Main content |
+| content_type | ChoiceField | Type of content |
+| language | ChoiceField | Original language |
+| visibility | ChoiceField | Visibility level |
+| comments_enabled | BooleanField | Whether comments are allowed |
+| created_at | DateTimeField | Creation time |
+| updated_at | DateTimeField | Last modification |
+
+## Content Types
+
+- Poem
+- Story
+- Essay
+- Article
+- Photography
+- Illustration
+- Digital Art
+- Short Film
+- Other
+
+## Visibility
+
+- Public
+- Followers Only
+- Private
+
+## Relationships
+
+- One User may create many Posts.
+- One Post may contain multiple Media objects.
+- One Post may receive many Likes.
+- One Post may receive many Comments.
+- One Post may appear in many Magazines.
+- One Post may appear in many Museums.
+- One Post may have multiple Permission Requests.
+
+## Business Rules
+
+- Every Post belongs to exactly one User.
+- Ownership never changes.
+- Visibility controls who can access the Post.
+- Posts may be edited after publication.
+- Posts may be deleted by their owner.
+
+---
+
+# 6. Media
+
+## Purpose
+
+Stores media attached to a Post.
+
+Media is separated from Post to allow multiple files without duplicating Post information.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| post | ForeignKey(Post) | Parent post |
+| media_type | ChoiceField | Type of media |
+| media_url | URLField | File location |
+| alt_text | CharField | Accessibility description |
+| display_order | PositiveIntegerField | Display order |
+| created_at | DateTimeField | Upload time |
+
+## Media Types
+
+- Image
+- Video
+- Audio
+- External Link
+
+## Relationships
+
+- One Post may contain zero or many Media objects.
+
+## Business Rules
+
+- Media cannot exist without a Post.
+- Multiple media files are supported.
+- Display order determines presentation order.
+
+---
+
+# 7. Follow
+
+## Purpose
+
+Represents follower relationships between Users.
+
+This table implements the social graph of the platform.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| follower | ForeignKey(User) | User initiating the follow |
+| following | ForeignKey(User) | User being followed |
+| created_at | DateTimeField | Follow date |
+
+## Relationships
+
+- One User may follow many Users.
+- One User may have many Followers.
+
+## Business Rules
+
+- Users cannot follow themselves.
+- Duplicate follow relationships are not allowed.
+- The combination (follower, following) must be unique.
+
+---
+
+# 8. Like
+
+## Purpose
+
+Stores likes given by Users to Posts.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| user | ForeignKey(User) | User giving the like |
+| post | ForeignKey(Post) | Liked post |
+| created_at | DateTimeField | Like date |
+
+## Relationships
+
+- One User may like many Posts.
+- One Post may receive many Likes.
+
+## Business Rules
+
+- A User may like a Post only once.
+- The combination (user, post) must be unique.
+
+---
+
+# 9. Comment
+
+## Purpose
+
+Represents comments written by Users.
+
+Comments can currently be attached to Posts or Magazines.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| author | ForeignKey(User) | Comment author |
+| post | ForeignKey(Post, nullable) | Target post |
+| magazine | ForeignKey(Magazine, nullable) | Target magazine |
+| body | TextField | Comment text |
+| created_at | DateTimeField | Creation time |
+| updated_at | DateTimeField | Last modification |
+
+## Relationships
+
+- One User may write many Comments.
+- One Post may receive many Comments.
+- One Magazine may receive many Comments.
+
+## Business Rules
+
+- A Comment must belong to exactly one target.
+- A Comment cannot reference both a Post and a Magazine.
+- Empty comments are not allowed.
+- Authors may edit or delete their own Comments.
