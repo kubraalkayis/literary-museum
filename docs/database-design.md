@@ -499,3 +499,182 @@ Represents the relationship between Posts and Museums.
 - A Post cannot appear twice in the same Museum.
 - Another creator's Post requires an accepted PermissionRequest.
 - A creator may freely exhibit their own Posts.
+---
+
+# 14. PermissionRequest
+
+## Purpose
+
+Represents permission requests between creators for using a Post inside a Magazine or Museum.
+
+Permissions are destination-specific and do not transfer ownership.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| requester | ForeignKey(User) | User requesting permission |
+| creator | ForeignKey(User) | Owner of the Post |
+| post | ForeignKey(Post) | Requested work |
+| destination_type | ChoiceField | Magazine or Museum |
+| magazine | ForeignKey(Magazine, nullable) | Target magazine |
+| museum | ForeignKey(Museum, nullable) | Target museum |
+| status | ChoiceField | Current request status |
+| message | TextField | Optional message |
+| created_at | DateTimeField | Creation time |
+| responded_at | DateTimeField | Response time |
+
+## Status
+
+- Pending
+- Accepted
+- Rejected
+- Cancelled
+- Revoked
+
+## Relationships
+
+- One User may send many Permission Requests.
+- One User may receive many Permission Requests.
+- One Post may have multiple Permission Requests.
+
+## Business Rules
+
+- A PermissionRequest references exactly one destination.
+- A destination may be either a Magazine or a Museum.
+- Permissions never transfer ownership.
+- Creators may revoke previously granted permission.
+- Revocation affects only the specified destination.
+- The behavior of already-published official magazines after revocation will be defined separately.
+
+---
+
+# 15. Report
+
+## Purpose
+
+Represents moderation reports submitted by Users.
+
+Reports help moderators review inappropriate content or behavior.
+
+## Fields
+
+| Field | Type | Description |
+|--------|------|-------------|
+| id | BigAutoField | Primary key |
+| reporter | ForeignKey(User) | Reporting user |
+| target_type | ChoiceField | Report target |
+| post | ForeignKey(Post, nullable) | Reported post |
+| comment | ForeignKey(Comment, nullable) | Reported comment |
+| magazine | ForeignKey(Magazine, nullable) | Reported magazine |
+| museum | ForeignKey(Museum, nullable) | Reported museum |
+| profile | ForeignKey(Profile, nullable) | Reported profile |
+| reason | ChoiceField | Report reason |
+| description | TextField | Additional explanation |
+| status | ChoiceField | Review status |
+| reviewed_by | ForeignKey(User, nullable) | Moderator |
+| created_at | DateTimeField | Creation time |
+| reviewed_at | DateTimeField | Review time |
+
+## Status
+
+- Pending
+- Under Review
+- Resolved
+- Dismissed
+
+## Relationships
+
+- One User may submit many Reports.
+- One moderator may review many Reports.
+
+## Business Rules
+
+- A Report references exactly one target.
+- Reports do not automatically remove content.
+- Only moderators may resolve Reports.
+
+---
+
+# 16. Database Constraints
+
+The following constraints should be enforced at the database level whenever possible.
+
+## Unique Constraints
+
+- username
+- email
+- (follower, following)
+- (user, post) in Like
+- (magazine, post) in MagazineItem
+- (museum, post) in MuseumItem
+
+## Foreign Key Constraints
+
+All foreign keys should use Django's relational integrity mechanisms.
+
+Deletion behavior (CASCADE, SET NULL, PROTECT) will be finalized during model implementation.
+
+---
+
+# 17. Indexing Strategy
+
+Indexes should be added for fields that are frequently searched or filtered.
+
+Recommended indexes include:
+
+- username
+- email
+- author
+- visibility
+- created_at
+- published_at
+- status
+- language
+
+Additional indexes may be introduced after performance testing.
+
+---
+
+# 18. Content Lifecycle & Future Improvements
+
+Some behaviors will be finalized during implementation.
+
+These include:
+
+- Account deletion strategy
+- Preservation of historical publications
+- Permission revocation behavior for published official magazines
+- Advanced moderation workflow
+- Soft delete support
+- Full-text search optimization
+- Recommendation system integration
+- Audit logging
+
+---
+
+# 19. Document Status
+
+Current progress:
+
+- [x] User
+- [x] Profile
+- [x] Post
+- [x] Media
+- [x] Follow
+- [x] Like
+- [x] Comment
+- [x] Magazine
+- [x] MagazineItem
+- [x] Museum
+- [x] MuseumItem
+- [x] PermissionRequest
+- [x] Report
+- [x] Database Constraints
+- [x] Indexing Strategy
+- [x] Content Lifecycle
+
+Status:
+
+**Database Design Completed**
