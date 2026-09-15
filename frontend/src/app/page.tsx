@@ -16,23 +16,7 @@ const magazines = [
   },
 ];
 
-const posts = [
-  {
-    type: "Poem",
-    title: "The Last Letter",
-    author: "Luzia",
-  },
-  {
-    type: "Short Story",
-    title: "A Room Without Clocks",
-    author: "Mira Vale",
-  },
-  {
-    type: "Photography",
-    title: "Blue Hour",
-    author: "Elian North",
-  },
-];
+
 
 const museums = [
   {
@@ -49,7 +33,33 @@ const museums = [
   },
 ];
 
-export default function Home() {
+ type Post = {
+  id: number;
+  author_username: string;
+  title: string;
+  content: string;
+  content_type: string;
+  visibility: string;
+  status: string;
+  cover_image: string;
+  created_at: string;
+  updated_at: string;
+};
+
+async function getPosts(): Promise<Post[]> {
+  const response = await fetch("http://127.0.0.1:8000/api/posts/", {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch posts.");
+  }
+
+  return response.json();
+}
+
+export default async function Home() {
+  const posts = await getPosts();
   return (
     <main className="min-h-screen bg-stone-50 text-stone-950">
       <header className="border-b border-stone-200">
@@ -165,11 +175,17 @@ export default function Home() {
                 key={post.title}
                 className="grid gap-3 py-7 md:grid-cols-[150px_1fr_200px] md:items-center"
               >
-                <p className="text-sm text-stone-500">{post.type}</p>
-                <h3 className="font-serif text-2xl">{post.title}</h3>
-                <p className="text-sm text-stone-500 md:text-right">
-                  by {post.author}
-                </p>
+                <p className="text-sm text-stone-500">
+  {post.content_type.replace("_", " ")}
+</p>
+
+<h3 className="font-serif text-2xl">
+  {post.title}
+</h3>
+
+<p className="text-sm text-stone-500 md:text-right">
+  by {post.author_username}
+</p>
               </article>
             ))}
           </div>
